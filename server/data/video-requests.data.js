@@ -6,14 +6,14 @@ module.exports = {
     return newRequest.save();
   },
 
-  getAllVideoRequests: (top) => {
-    return VideoRequest.find({}).sort({ submit_date: '-1' }).limit(top);
+  getAllVideoRequests: async (sort) => {
+    return VideoRequest.find({}).sort({ submit_date: '-1' });
+
   },
 
   searchRequests: (topic) => {
-    return VideoRequest.find({ topic_title: topic })
+    return VideoRequest.find({ topic_title: { $regex : topic, $options : 'i'} })
       .sort({ addedAt: '-1' })
-      .limit(top);
   },
 
   getRequestById: (id) => {
