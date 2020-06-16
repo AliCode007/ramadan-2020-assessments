@@ -1,3 +1,11 @@
+let state = {
+   searchTerm: "",
+   sortBy: "newFirst",
+   userId: ""
+
+}
+
+
 function createVideoReqElm(videoReq){
 
   videoReqElm = document.createElement('div');
@@ -31,18 +39,32 @@ function createVideoReqElm(videoReq){
         ${videoReq.target_level}
       </div>
     </div>
+    <p>
   </div>`;
   buttons = videoReqElm.getElementsByClassName('btn-link');
   buttons[0].addEventListener('click',function(){
-    updateVotes(videoReq._id,true);
-    votesElm = document.getElementById(videoReq._id).getElementsByClassName('votes-num')[0];
-    console.log(votesElm);
-    votesElm.innerHTML = `${parseFloat(votesElm.innerHTML) + 1}`;
+    res = updateVotes(videoReq._id,true).then((res ) => {
+      voted = res.voted;
+      if (!voted) {
+        votesElm = document.getElementById(videoReq._id).getElementsByClassName('votes-num')[0];
+
+        votesElm.innerHTML = res.votes.ups - res.votes.downs;
+      } else{
+        console.log("Already voted");
+      }
+    });
   });
   buttons[1].addEventListener('click',function(){
-    updateVotes(videoReq._id,false);
-    votesElm = document.getElementById(videoReq._id).getElementsByClassName('votes-num')[0];
-    votesElm.innerHTML = parseFloat(votesElm.innerHTML) - 1;
+    res = updateVotes(videoReq._id,false).then((res ) => {
+      voted = res.voted;
+      if (!voted) {
+        votesElm = document.getElementById(videoReq._id).getElementsByClassName('votes-num')[0];
+        votesElm.innerHTML = res.votes.ups - res.votes.downs;
+      } else{
+        console.log("Already voted");
+      }
+    });
+
   });
 
   return videoReqElm;
@@ -51,7 +73,7 @@ function createVideoReqElm(videoReq){
 
 }
 
-function updateVotes(id,flag){
+function  updateVotes(videoReqId,flag){
 
   let headers = new Headers();
   headers.append('Content-Type', 'application/json');
@@ -59,36 +81,63 @@ function updateVotes(id,flag){
 
   if(flag){
       data = {
-          id: id,
+          videoReqId: videoReqId,
+          userId: state.userId,
           vote_type: "ups"
       }
   }else {
       data = {
-          id: id,
+          videoReqId: videoReqId,
+          userId: state.userId,
           vote_type: "downs"
       }
   }
 
-  fetch("http://localhost:7777/video-request/vote",{
+  return fetch("http://localhost:7777/video-request/vote",{
       method: 'PUT',
       headers: headers,
       body: JSON.stringify(data) 
+  })
+  .then(blob => blob.json())
+  .then((res) => {
+      return res;
   });
 
 
 
 }
 
+function validateFormData(data){
+  let valid = true;
+  let { topic_title,topic_details } = data;
+
+
+
+  if (!topic_title || (topic_title.length > 100) ) {
+    document.getElementById('topic_title').classList.add('is-invalid');
+    valid = false;
+  }
+
+  if (!topic_details){
+    document.getElementById('topic_details').classList.add('is-invalid');
+    valid = false;
+  }
+  return valid;
+}
+
 function postVideoRequest(e){
     e.preventDefault();
 
-    const formVideoRequest = document.getElementById('form-video-request');
-    const formData = new FormData(formVideoRequest);
+    const formVideoReqElm = document.getElementById('form-video-request');
+    const formData = new FormData(formVideoReqElm);
+    formData.append('author_id',state.userId);
     const data = {}
     formData.forEach(function(value,key){
         data[key] = value;
     })
+  
 
+    if (!validateFormData(data)) return ;
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
     headers.append('Accept', 'application/json');
@@ -129,36 +178,60 @@ function loadVidReqs(sort="newFirst",searchTerm="") {
 }
 
 
+const debounce = (fn, time) => {
+  let timeout;
+
+  return function() {
+    const functionCall = () => fn.apply(this, arguments);
+    
+    clearTimeout(timeout);
+    timeout = setTimeout(functionCall, time);
+  }
+}
+
 
 document.addEventListener('DOMContentLoaded',function() {
     const fromVidReqElm = document.getElementById('form-video-request');
     const sortByElms = document.querySelectorAll('[id*=sort_by_]');
     const searchBoxElm = document.getElementById('search_box');
-    
+    const formInputElms = fromVidReqElm.querySelectorAll('input , textarea');
+
+    if (window.location.search) {
+      state.userId = new URLSearchParams(window.location.search).get('id');
+      if (state.userId) {
+        document.querySelector('.login-form').classList.add('d-none');
+        document.querySelector('.app-content').classList.remove('d-none');
+      }
+    }
+
     loadVidReqs();
 
-    fromVidReqElm.addEventListener('submit',postVideoRequest);
-    searchBoxElm.addEventListener('input',function(e) {
-      let searchTerm = searchBoxElm.value;
-      let sortBy;
-      if (document.getElementById('sort_by_top').classList.contains('active')){
-        sortBy = "topVotedFirst";
-      }else{
-        sortBy = "newFirst"
-      }
-      loadVidReqs(sortBy,searchTerm);
+    formInputElms.forEach((elm) => {
+      elm.addEventListener('focus',function(e) {
+        this.classList.remove('is-invalid')
+      });
     });
+    fromVidReqElm.addEventListener('submit',postVideoRequest);
+    searchBoxElm.addEventListener('input',debounce(function(e) {
+      state.searchTerm = searchBoxElm.value;
+      if (document.getElementById('sort_by_top').classList.contains('active')){
+        state.sortBy = "topVotedFirst";
+      }else{
+        state.sortBy = "newFirst"
+      }
+      loadVidReqs(state.sortBy,state.searchTerm);
+    },300));
 
     sortByElms.forEach((elm) => {
       elm.addEventListener('click', function (e) {
         e.preventDefault();
 
-        let sortBy = this.querySelector('input').value;
-        let searchTerm = document.getElementById('search_box').value;
-        loadVidReqs(sortBy,searchTerm);
+        state.sortBy = this.querySelector('input').value;
+        state.searchTerm = document.getElementById('search_box').value;
+        loadVidReqs(state.sortBy,state.searchTerm);
 
         this.classList.add('active');
-        if (sortBy === 'topVotedFirst'){
+        if (state.sortBy === 'topVotedFirst'){
           document.getElementById('sort_by_new').classList.remove('active');
         }else{
           document.getElementById('sort_by_top').classList.remove('active');

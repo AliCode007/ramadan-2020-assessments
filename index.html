@@ -11,115 +11,131 @@
   </head>
   <body>
     <div class="container my-5">
-      <div class="formContainer my-5">
-        <form id="form-video-request">
-          <div class="row">
-            <div class="col-md">
-              <div class="form-group">
-                <label for="author_name">Your name *</label>
-                <input
-                  class="form-control"
-                  name="author_name"
-                  placeholder="Write your name here"
-                  id="author-name"
-                  value="name"
-                />
-              </div>
-            </div>
-            <div class="col-md">
-              <div class="form-group">
-                <label for="author_email">Your email *</label>
-                <input
-                  class="form-control"
-                  name="author_email"
-                  placeholder="Write your email here"
-                  id="author-email"
-                  value="email"
-                />
-              </div>
-            </div>
+      <div class="login-form col-md-4 offset-md-4 pt-5">
+        <form action="http://localhost:7777/users/login" method="POST">
+          <div class="form-group">
+            <label for="author_name">Your name *</label>
+            <input
+              class="form-control "
+              name="author_name"
+              placeholder="Write your name here"
+              id="author_name"
+              type="text"
+              required
+            />
+
           </div>
-          <hr />
-          <div class="row">
-            <div class="col-md">
-              <div class="form-group">
-                <label for="topic_title">Topic *</label>
-                <input
-                  class="form-control"
-                  name="topic_title"
-                  placeholder="Write your suggested topic here"
-                  id="topic-title"
-                  value="title"
-                />
-              </div>
-            </div>
-            <div class="col-md">
-              <div class="form-group">
-                <label for="target_level">Target level</label>
-                <select
-                  class="form-control"
-                  name="target_level"
-                  placeholder="Write your name here"
-                  id="target-level"
-                >
-                  <option value="begineer">Beginner</option>
-                  <option value="medium">Medium</option>
-                  <option value="advanced">Advanced</option>
-                </select>
-              </div>
-            </div>
+          <div class="form-group">
+            <label for="author_email">Your email *</label>
+            <input
+              class="form-control"
+              name="author_email"
+              placeholder="Write your email here"
+              id="author_email"
+              type="email"
+              required
+            />
           </div>
-          <div class="row">
-            <div class="col-md">
-              <div class="form-group">
-                <label for="topic_details">More details *</label>
-                <textarea
-                  class="form-control"
-                  name="topic_details"
-                  placeholder="Write your topic in more details here"
-                  id="topic-details"
-                  value="details"
-                ></textarea>
-              </div>
-            </div>
-            <div class="col-md">
-              <div class="form-group">
-                <label for="expected_result">Expected results</label>
-                <textarea
-                  class="form-control"
-                  name="expected_result"
-                  placeholder="Write what do you expect after watching this video"
-                  id="expected-result"
-                  value="expected result"
-                ></textarea>
-              </div>
-            </div>
+          <div class="form-group">
+            <button class="btn btn-primary btn-block">
+              login
+            </button>
           </div>
-          <button type ="submit" id="submit-video-request"  class="btn btn-success mt-3">
-            Send video request
-          </button>
         </form>
-
       </div>
-      <hr />
-      <h1 class="mb-4">List of requested videos</h1>
-      <div class="d_flex justify-content-between mb-4">
-        <div class="btn-group btn-group-toggle" data-toogle="buttons">
-          <label id="sort_by_new" class="btn btn-primary active">
-            <input type="radio" name="options" value="newFirst"/> New first
-          </label>
-          <label id="sort_by_top" class="btn btn-primary ">
-            <input type="radio" name="options" value="topVotedFirst"/> Top voted first
-          </label>
+      <div class="app-content d-none">
+      <div class="formContainer ">
+          <form id="form-video-request" novalidate>
+            <div class="row">
+              <div class="col-md">
+                <div class="form-group">
+                  <label for="topic_title">Topic *</label>
+                  <input
+                    class="form-control "
+                    name="topic_title"
+                    placeholder="Write your suggested topic here"
+                    id="topic_title"
+                    type="text"
+                    required
+                  />
+                  <p class="invalid-feedback">
+                    This input is invalid
+                  </p>
+                </div>
+              </div>
+              <div class="col-md">
+                <div class="form-group">
+                  <label for="target_level">Target level</label>
+                  <select
+                    class="form-control"
+                    name="target_level"
+                    placeholder="Write your name here"
+                    id="target_level"
+                  >
+                    <option value="begineer">Beginner</option>
+                    <option value="medium">Medium</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md">
+                <div class="form-group">
+                  <label for="topic_details">More details *</label>
+                  <textarea
+                    class="form-control"
+                    name="topic_details"
+                    placeholder="Write your topic in more details here"
+                    id="topic_details"
+
+                    required
+                  ></textarea>
+                  <p class="invalid-feedback">
+                    Enter Details
+                  </p>
+                </div>
+              </div>
+              <div class="col-md">
+                <div class="form-group">
+                  <label for="expected_result">Expected results</label>
+                  <textarea
+                    class="form-control"
+                    name="expected_result"
+                    placeholder="Write what do you expect after watching this video"
+                    id="expected-result"
+
+              
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+            <button type ="submit" id="submit-video-request"  class="btn btn-success mt-3">
+              Send video request
+            </button>
+          </form>
+
         </div>
-        <div>
-          <input type="search" class="form-control" id="search_box" placeholder="search">
+        <hr />
+        <h1 class="mb-4">List of requested videos</h1>
+        <div class="d_flex justify-content-between mb-4">
+          <div class="btn-group btn-group-toggle" data-toogle="buttons">
+            <label id="sort_by_new" class="btn btn-primary active">
+              <input type="radio" name="options" value="newFirst"/> New first
+            </label>
+            <label id="sort_by_top" class="btn btn-primary ">
+              <input type="radio" name="options" value="topVotedFirst"/> Top voted first
+            </label>
+          </div>
+          <div>
+            <input type="search" class="form-control" id="search_box" placeholder="search">
+          </div>
         </div>
-      </div>
 
 
-      <div id="video-request-list">
+        <div id="video-request-list"></div>
       </div>
+ 
     </div>
     <script src="client.js"></script>
   </body>
