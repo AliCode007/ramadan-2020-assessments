@@ -21,9 +21,9 @@ function createVideoReqElm(videoReq){
       </p>
     </div>
     <div class="d-flex flex-column text-center">
-      <button  class="btn btn-link" ">🔺</button>
-      <h3 class="votes-num">${videoReq.votes.ups - videoReq.votes.downs} </h3>
-      <button  class="btn btn-link" ">🔻</button>
+      <button  class="btn btn-link"  >🔺</button>
+      <h3 class="votes-num">${videoReq.votes.ups.length - videoReq.votes.downs.length} </h3>
+      <button  class="btn btn-link" >🔻</button>
     </div>
   </div>
   <div class="card-footer d-flex flex-row justify-content-between">
@@ -41,28 +41,39 @@ function createVideoReqElm(videoReq){
     </div>
     <p>
   </div>`;
-  buttons = videoReqElm.getElementsByClassName('btn-link');
-  buttons[0].addEventListener('click',function(){
+
+  buttonsElms = videoReqElm.getElementsByClassName('btn-link');
+
+  if (videoReq.votes.ups.includes(state.userId)){
+    buttonsElms[0].style.opacity="0.5";
+  }
+  if (videoReq.votes.downs.includes(state.userId)){
+    buttonsElms[1].style.opacity="0.5";
+  }
+
+  buttonsElms[0].addEventListener('click',function(){
     res = updateVotes(videoReq._id,true).then((res ) => {
       voted = res.voted;
       if (!voted) {
         votesElm = document.getElementById(videoReq._id).getElementsByClassName('votes-num')[0];
+        votesElm.innerHTML = res.votes.ups.length - res.votes.downs.length;
+        buttonsElms = document.getElementById( videoReq._id).getElementsByClassName('btn-link');
+        buttonsElms[0].style.opacity="0.5";
+        buttonsElms[1].style.opacity="1";
 
-        votesElm.innerHTML = res.votes.ups - res.votes.downs;
-      } else{
-        console.log("Already voted");
-      }
+      } 
     });
   });
-  buttons[1].addEventListener('click',function(){
+  buttonsElms[1].addEventListener('click',function(){
     res = updateVotes(videoReq._id,false).then((res ) => {
       voted = res.voted;
       if (!voted) {
         votesElm = document.getElementById(videoReq._id).getElementsByClassName('votes-num')[0];
-        votesElm.innerHTML = res.votes.ups - res.votes.downs;
-      } else{
-        console.log("Already voted");
-      }
+        votesElm.innerHTML = res.votes.ups.length - res.votes.downs.length;
+        buttonsElms = document.getElementById( videoReq._id).getElementsByClassName('btn-link');
+        buttonsElms[1].style.opacity="0.5";
+        buttonsElms[0].style.opacity="1";
+      } 
     });
 
   });

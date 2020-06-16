@@ -39,32 +39,25 @@ module.exports = {
   },
 
   updateVoteForRequest: async (videoReqId,userId, vote_type) => {
-    let vote = await Vote.findOne({
-      user_id: userId,
-      video_req_id: videoReqId
-    });
-    if (vote) {
-      return {
-        voted: true
-      };
-    }
     const oldRequest = await VideoRequest.findById({ _id: videoReqId });
     const other_type = vote_type === 'ups' ? 'downs' : 'ups';
-    vote = new Vote({
-      user_id: userId,
-      video_req_id: videoReqId
-    });
-    await vote.save();
-    return VideoRequest.findByIdAndUpdate(
-      { _id: videoReqId },
-      {
-        votes: {
-          [vote_type]: ++oldRequest.votes[vote_type],
-          [other_type]: oldRequest.votes[other_type],
-        },
-      },
-      {new: true}
-    );
+
+    if (oldRequest.votes[vote_type].includes(userId)) {
+      return {
+        voted: true
+      }
+    }
+
+    if (oldRequest.votes[other_type].includes(userId)){
+      const index = oldRequest.votes[other_type].indexOf(userId);
+      if (index > -1) {
+        oldRequest.votes[other_type].splice(index, 1);
+      }
+    }
+
+    oldRequest.votes[vote_type].push(userId);
+    oldRequest.save();
+    return oldRequest;
   },
 
   deleteRequest: (id) => {
